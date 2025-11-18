@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raider.io 到 Warcraft Logs 轉換器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #87CEEB, #FFB6C1);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            color: #4a4a9c;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a4a9c;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #333;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4a4a9c;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4a4a9c, #d94d7c);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            text-align: left;
+            display: none;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .result h3 {
+            color: #4a4a9c;
+            margin-bottom: 10px;
+        }
+        
+        .info-box {
+            background-color: rgba(74, 74, 156, 0.1);
+            border-left: 4px solid #4a4a9c;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .error {
+            color: #d94d7c;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .example {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .logo img {
+            height: 60px;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <!-- 這裡可以放置您的Logo -->
+        </div>
+        
+        <h1>WOW 快速稽查網址轉換器</h1>
+        <p class="subtitle">將 Raider.io 網址轉換為 Warcraft Logs 網址</p>
+
+        <div class="input-group">
+            <label for="urlInput">輸入 Raider.io 角色網址</label>
+            <input type="text" id="urlInput" placeholder="例如: https://raider.io/characters/tw/lights-hope/英格麗特?utm_source=addon">
+            <p class="example">範例格式: https://raider.io/characters/tw/伺服器名稱/角色名稱</p>
+        </div>
+        
+        <button id="convertBtn">轉換並跳轉</button>
+        
+        <div class="error" id="errorMsg">請輸入有效的 Raider.io 角色網址</div>
+        
+        <div class="result" id="result">
+            <h3>轉換結果</h3>
+            <p><strong>伺服器名稱:</strong> <span id="serverName"></span></p>
+            <p><strong>角色名稱:</strong> <span id="characterName"></span></p>
+            <p><strong>新網址:</strong> <span id="newUrl"></span></p>
+        </div>
+        
+        <div class="info-box">
+            <p>這個工具會從您的 Raider.io 網址中提取伺服器名稱和角色名稱，並將其轉換為 Warcraft Logs 網址。</p>
+        </div>
+        
+        <div class="instructions">
+            <p>使用說明:</p>
+            <ol>
+                <li>右鍵需稽查角色，點選複製Raider.io網址並ctrl+c複製</li>
+                <li>貼上到上方的輸入欄位中</li>
+                <li>點擊 Enter 或「轉換並跳轉」按鈕</li>
+                <li>系統將在新分頁中打開對應的 Warcraft Logs 頁面</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            const inputUrl = document.getElementById('urlInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const resultDiv = document.getElementById('result');
+            
+            // 隱藏之前的結果和錯誤
+            errorMsg.style.display = 'none';
+            resultDiv.style.display = 'none';
+            
+            // 驗證輸入是否為空
+            if (!inputUrl) {
+                errorMsg.textContent = '請輸入網址';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // 嘗試解析網址
+            try {
+                // 使用正則表達式提取伺服器名稱和角色名稱
+                const regex = /raider\.io\/characters\/tw\/([^\/]+)\/([^?]+)/i;
+                const match = inputUrl.match(regex);
+                
+                if (!match || match.length < 3) {
+                    errorMsg.textContent = '無法從網址中提取伺服器名稱和角色名稱，請確認網址格式正確';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                
+                const serverName = match[1];
+                const characterName = match[2];
+                
+                // 構建新的網址
+                const newUrl = `https://www.warcraftlogs.com/character/tw/${serverName}/${characterName}?zone=45`;
+                
+                // 顯示結果
+                document.getElementById('serverName').textContent = serverName;
+                document.getElementById('characterName').textContent = characterName;
+                document.getElementById('newUrl').textContent = newUrl;
+                resultDiv.style.display = 'block';
+                
+                // 在新分頁中打開轉換後的網址
+                window.open(newUrl, '_blank');
+
+                // 清空輸入欄位
+                document.getElementById('urlInput').value = '';
+                
+            } catch (error) {
+                errorMsg.textContent = '處理網址時發生錯誤，請確認網址格式正確';
+                errorMsg.style.display = 'block';
+                console.error(error);
+            }
+        });
+        
+        // 添加Enter鍵支持
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('convertBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>
